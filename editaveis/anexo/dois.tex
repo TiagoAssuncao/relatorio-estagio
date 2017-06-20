@@ -1,0 +1,668 @@
+\chapter{Camada de Controle dos dados}
+\label{ane:dois}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \# -*- coding: utf-8 -*-}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from flask import Blueprint, render\_template, url\_for, jsonify, request}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from flask\_login import current\_user}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app.core.models import TarefasRemotas, GerenciadorLog}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app import celery, db, engine\_ocsdw}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app.nocache import nocache}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    import datetime}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from models import HistoricoManutencao}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from sqlalchemy import text}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from save\_log\_network import SaveLogCommand}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from maintenance import MaintenanceCommand}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from change\_data import ChangeDataCommand}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from information import InformationCommand, information\_schema}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from decorators import serialize\_object}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    import re}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    manutencao = Blueprint('manutencao', \_\_name\_\_)}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    @manutencao.route('/manutencao', methods=['GET'])}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    @nocache}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def index():}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ historico = HistoricoManutencao.query.all()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return render\_template(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ {}'manutencao/index.html',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ historico=historico,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ current\_user=current\_user)}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def get\_form\_info(form):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ img = form['Tipo\_de\_imagem']}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ acao = form['acao']}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ machines = form.getlist('machine[]')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ options = dict(form)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ command\_type = form['command\_type']}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return img, machines, acao, command\_type, options}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    @manutencao.route('/manage-manutencao', methods=['POST'])}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    @nocache}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def manage\_manutencao():}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ img, machines, command, command\_type, options = get\_form\_info(request.form)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ task = manutencao\_task.apply\_async(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ (machines, command, current\_user.username, command\_type, options),}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ queue='maintenance'}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return jsonify(\{\}), 202, \{'Location': url\_for('.manutencao\_status',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ task\_id=task.id)\}}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    @manutencao.route('/manutencaostatus/{\textless}task\_id{\textgreater}')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def manutencao\_status(task\_id):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ Verifica o status de uma determinada tarefa, pelo seu ID}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ :returns: Dicion\'ario com o estado e o ID da tarefa}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ task = manutencao\_task.AsyncResult(task\_id)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ if task.state != 'PENDING':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ history\_id = task.info['history\_id']}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = task.info['result']}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ command\_type = task.info['command\_type']}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ history = HistoricoManutencao.query.get(history\_id)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ response = \{}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'state': task.state,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'result': result,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'history\_id': history\_id,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'command\_type': command\_type\}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ response = \{'state': task.state\}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return jsonify(response)}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    @celery.task(bind=True)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def manutencao\_task(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ self,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ machines,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ command\_str,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ username,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ command\_type,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ options):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ Inicia processo de cria\c{c}\~ao de uma imagem}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ :returns: identificacao da imagem criada}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ data\_start = datetime.datetime.now()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \# Remove all letters from string, without the IP.}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ machines = re.sub(r'[a-zA-Z0-9\_ ]+{\textbackslash}({\textbar}{\textbackslash})\$', '{}', machines[0])}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ if 'logs' in command\_type:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ command = SaveLogCommand(hosts='10.196.19.87')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ status, result = getattr(command, command\_str)()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ elif 'maintenance' in command\_type:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ command = MaintenanceCommand(hosts='10.196.19.87')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ status, result = getattr(command, command\_str)()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ elif 'information' in command\_type:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ command = InformationCommand(hosts='10.196.19.87')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ status, result = getattr(command, command\_str)()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = information\_schema.dump(result).data}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ elif 'change' in command\_type:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ command = ChangeDataCommand(hosts='10.196.19.87')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ status, result = getattr(command, command\_str)(options=options)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ data\_end = datetime.datetime.now()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ history = HistoricoManutencao(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ machines, data\_start, data\_end, command\_str, username, status)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ db.session.add(history)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ db.session.commit()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ GerenciadorLog().manutencao\_log('{}', history.id, machines, username)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return \{}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ {}'history\_id': history.id,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ {}'result': result,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ {}'command\_type': command\_type\}}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    @manutencao.route('/log\_manutencao/{\textless}maintenance\_id{\textgreater}')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def log\_imagens(maintenance\_id):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ Recupera o log de uma respectiva imagem}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ :returns: string buffer com o log da imagem}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ file\_log = GerenciadorLog().ler\_logs\_manutencao(maintenance\_id)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ history = HistoricoManutencao.query.get(maintenance\_id)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ response = \{'file\_log': file\_log, 'link': history.link\_log\}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return jsonify(response)}
+
+
+    \bigskip
+
+{\color{black}
+    A seguir, ser\~ao apresentados os scripts utilizados para decorar as fun\c{c}\~oes das models:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import settings}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    import traceback}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def setup\_fabric(func):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}Decorates a function, adding a temporary conection}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ with fabric and the host before the method executation}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_func\_wrapper(self, *args, **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# try:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ with settings(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ warn\_only='true',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ host\_string=self.hosts,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ user=self.user,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ password=self.password,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ connection\_attempts=5,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ keepalive=10}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ ):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ return func(self, *args, **kwargs)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# except Exception:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# \ \ \ \ return \{'status': False, 'error': traceback.format\_exc()\}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return \_func\_wrapper}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def validate\_input(func):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl} Verify if the kwargs isn't empty. If not, this executes}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ the call back.}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_func\_wrapper(self, *args, **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ for key, value in kwargs.items():}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ if value == ['{}']:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ return}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ func(self, *args, **kwargs)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return \_func\_wrapper}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def update\_reboot\_machine(func):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_func\_wrapper(self, *args, **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.update\_machine()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ func()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.purge\_garbage()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run('shutdown -c')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.reboot\_machine()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return \_func\_wrapper}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def serialize\_object(obj):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ kw\_result = \{attr: getattr(obj, attr)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ for attr in dir(obj) if not attr.startswith('\_')\}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ return kw\_result}
+
+
+    \bigskip
+
+{\color{black}
+    Os procedimentos a seguir foram implementadas instru\c{c}\~oes para a inicia\c{c}\~ao do celery autom\'atica:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_author\_\_ = {\textquotedbl}Tiago Assuncao, Leonardo Bites{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_copyright\_\_ = {\textquotedbl}Copyright 2017, 4linux{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_credits\_\_ = [{\textquotedbl}Tiago Assuncao{\textquotedbl}, {\textquotedbl}Leonardo Bites{\textquotedbl}]}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_license\_\_ = {\textquotedbl}GPL{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_version\_\_ = {\textquotedbl}1.0.1{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_maintainer\_\_ = {\textquotedbl}Tiago Assuncao{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_email\_\_ = {\textquotedbl}tiago.assuncao@4linux.com{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \_\_status\_\_ = {\textquotedbl}Developtment{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app import app}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import task, settings}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.operations import local, run}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.state import env}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    import thread}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    workes = [}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ ('maintenance', '10'),}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ ('ATM', '1'),}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ ('TFL', '1'),}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    ]}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def start\_single\_worker(queue, length):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ command = {\textquotedbl}celery -A my\_app.celery worker -{}-loglevel=INFO \ {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}-{}-concurrency=\{\} -Q \{\}{\textquotedbl}.format(queue, length)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ local(command)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    def start\_celery\_workers(queues):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ for queue, length in queues:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ thread.start\_new\_thread(start\_single\_worker, (length, queue))}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    start\_celery\_workers(workes)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    app.run(host='0.0.0.0', debug=False, port=8090)}

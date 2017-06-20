@@ -1,0 +1,3452 @@
+\chapter{Camada de Execução}
+\label{ane:tres}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import run}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from decorators import setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app import app}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.contrib import files}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class Command(object):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_init\_\_(self, hosts):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.user = app.config.get('FABRIC\_MACHINE\_USER')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.password = app.config.get('FABRIC\_MACHINE\_PASSWORD')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.command = None}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.hosts = hosts}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.local\_default = '/opt/manutencao'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.arq\_sql = '/opt/manutencao/tmp.sql'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.dir\_db = '/opt/foton/db/'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.nome\_db = 'EXTRACASH.GDB'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def exec\_command(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return {\textquotedbl}Hosts: \{0\}{\textquotedbl}.format(self.hosts)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_repr\_\_(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_repr = {\textquotedbl}Command: \{0.\_\_class\_\_.\_\_name\_\_\} with hosts:
+        \{0.hosts\}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return str\_repr.format(self)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_create\_sql\_file(self, sql):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ print 'create'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ create\_file\_result = files.append(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ filename=self.arq\_sql, text=sql, use\_sudo=True)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return create\_file\_result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_execute\_query(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ print 'execute'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql\_template = {\textquotedbl}{\textquotedbl}{\textquotedbl}/opt/firebird/bin/isql
+        localhost/3050:\{0\}\{1\} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}-u sysdba -p caixa -s 1 -noautocommit -i \{2\}
+    {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = sql\_template.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.dir\_db,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.nome\_db,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.arq\_sql,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = run(sql, pty=True)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result.stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_remove\_file(self, files):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ print 'remove'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ for file\_to\_remove in files:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ command = 'rm -rf \{0\}'.format(file\_to\_remove)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ result = run(command, pty=True)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result.stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def is\_procomp(self, version=None):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ is\_procomp\_result = run({\textquotedbl}{\textquotedbl}{\textquotedbl}[ -f /root/modelo\_procomp ] \&\&
+            echo {\textquotedbl}yes{\textquotedbl} {\textbar}{\textbar} {\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}no{\textquotedbl}
+            {\textquotedbl}{\textquotedbl}{\textquotedbl}).stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return True if is\_procomp\_result == {\textquotedbl}yes{\textquotedbl} else False}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_create\_execute\_remove\_sql(self, sql):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_sql\_file(sql)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = self.\_execute\_query()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_remove\_file([self.arq\_sql, self.check\_ip])}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def have\_file(self, file\_path):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ file\_return = run({\textquotedbl}{\textquotedbl}{\textquotedbl}[ -f \{\} ] \&\& echo
+            {\textquotedbl}yes{\textquotedbl} {\textbar}{\textbar} {\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}no{\textquotedbl}
+            {\textquotedbl}{\textquotedbl}{\textquotedbl}.format(file\_path)).stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return True if file\_return == 'yes' else False}
+
+
+    \bigskip
+
+{\color{black}
+    A seguir est\~ao os scripts de verifica\c{c}\~ao de dados:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \# -*- coding: utf-8 -*-}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import settings, run, env, execute}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.contrib import files}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from command import Command}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from decorators import setup\_fabric, serialize\_object}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app import ma}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    import traceback}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class Information(object):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_init\_\_(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ turn\_on\_minute=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ turn\_on\_hour=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ turn\_off\_minute=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ turn\_off\_hour=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ number\_agency=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ terminal\_number=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ room\_name=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ group=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ network\_sh=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ accessibility=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ end\_wideview=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ port\_wideview=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ end\_banklink=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ eth0=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ eth1=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ packages=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ packages\_version=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ packages\_jxfs=None,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ network\_shared=0,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ **kwargs}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ ):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.turn\_on\_minute = turn\_on\_minute}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.turn\_on\_hour = turn\_on\_hour}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.turn\_off\_minute = turn\_off\_minute}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.turn\_off\_hour = turn\_off\_hour}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.number\_agency = number\_agency}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.terminal\_number = terminal\_number}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.room\_name = room\_name}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.group = group}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.network\_shared = network\_shared}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.accessibility = accessibility}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.end\_wideview = end\_wideview}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.port\_wideview = port\_wideview}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.end\_banklink = end\_banklink}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.eth0 = eth0}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.eth1 = eth1}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.packages = packages}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.packages\_version = packages\_version}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.packages\_jxfs = packages\_jxfs}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def serialize(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return serialize\_object(self)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def make\_hour(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_hour = {\textquotedbl}Liga: \{0\}:\{1\} \ {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Desliga: \{2\}:\{3\}{\textquotedbl}.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.turn\_on\_hour,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.turn\_on\_minute,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.turn\_off\_hour,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.turn\_off\_minute}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return str\_hour}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class InformationCommand(Command):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_init\_\_(self, *args, **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.arq\_information = '/opt/manutencao/informacoes.txt'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.rede\_shared = 0}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information = Information()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ super(InformationCommand, self).\_\_init\_\_(*args, **kwargs)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_create\_sql\_file(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = {\textquotedbl}{\textquotedbl}{\textquotedbl}select * from pmt where pmtcod='65';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='66';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='67';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select pmtcod, pmtval from pmt where pmtcod='77';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='77';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='70';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='99';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='102';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='118';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='86';}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ select * from pmt where pmtcod='87';{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ create\_file\_result = files.append(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ filename=self.arq\_sql, text=sql, use\_sudo=True)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return create\_file\_result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def exec\_command(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# try:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ info\_timer = self.\_\_manage\_clock()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_sql\_file()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_execute\_query()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_remove\_file([self.arq\_sql])}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_\_get\_information(info\_timer)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return\_information = {\textquotedbl}Concluido com sucesso{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# except:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# \ \ \ \ import traceback}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# \ \ \ \ print traceback}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# \ \ \ \ return\_information = {\textquotedbl}Falha ao executar{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return return\_information, self.information}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_manage\_clock(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ turn\_off\_hour = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat /var/spool/cron/crontabs/caixa {\textbar}grep desliga {\textbar}awk '\{print
+            \$2\}'{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ turn\_off\_minute = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat /var/spool/cron/crontabs/caixa {\textbar}grep desliga {\textbar}awk '\{print
+            \$1\}'{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ turn\_on\_hour = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}tail -n 1 \ /var/spool/cron/crontabs/caixa {\textbar}awk '\{print \$2
+            \}'{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ turn\_on\_minute = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}tail -n 1 \ /var/spool/cron/crontabs/caixa {\textbar}awk '\{print \$1
+            \}'{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ finde = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}tail -n 1 /var/spool/cron/crontabs/caixa {\textbar}awk \{'print
+            \$5'\}{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ day\_of\_week = '{}'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if finde.stdout == {\textquotedbl}1-5{\textquotedbl}:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ day\_of\_week = 'de Segunda a Sexta'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ elif finde.stdout == {\textquotedbl}1-6{\textquotedbl}:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ day\_of\_week = 'de Segunda a Sabado'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ day\_of\_week = 'de Segunda a Domingo'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = \{}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'day\_of\_week': day\_of\_week,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_off\_hour': turn\_off\_hour.stdout,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_off\_minute': turn\_off\_minute.stdout,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_on\_minute': turn\_on\_minute.stdout,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_on\_hour': turn\_on\_hour.stdout,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information = Information(**result)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_execute\_query(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql\_template = {\textquotedbl}{\textquotedbl}{\textquotedbl}/opt/firebird/bin/isql
+        localhost/3050:\{0\}\{1\} -u {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ sysdba -p caixa -s 1 -noautocommit -i \{2\} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textgreater} \{3\}/teste{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = sql\_template.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.dir\_db,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.nome\_db,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.arq\_sql,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = run(sql, pty=True)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result.stdout.decode('utf-8')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_get\_information(self, days\_information):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ hour\_str = {\textquotedbl}Horario de funcionamento da sala \{day\_of\_week\} de {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{turn\_on\_hour\}:\{turn\_on\_minute\} as {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{turn\_off\_hour\}:\{turn\_off\_minute\}{\textbackslash}n{\textquotedbl}.format(**days\_information)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.number\_agency = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 66{\textbar}awk '\{\{print
+            \$6\}\}'{\textquotedbl}.format(self.local\_default), pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.terminal\_number = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 65{\textbar}awk '\{\{print
+            \$6\}\}'{\textquotedbl}.format(self.local\_default)}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.foton\_number = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 67{\textbar}awk '\{\{print
+            \$6\}\}'{\textquotedbl}.format(self.local\_default)}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.room\_name = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {}'cat \{0\}/teste{\textbar}grep 77 {\textbar}tr -d 77 {\textbar}cut
+            -c7-90'.format(self.local\_default),}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.group = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 99{\textbar}awk '\{\{print
+            \$4\}\}'{\textquotedbl}.format(self.local\_default),}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.network\_shared = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 102{\textbar}awk '\{\{print
+            \$7\}\}'{\textquotedbl}.format(self.local\_default),}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.accessibility = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 118{\textbar}awk '\{\{print
+            \$4\}\}'{\textquotedbl}.format(}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default), pty=True).stdout.decode(}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ {}'utf-8', errors='ignore')}
+
+
+                    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.end\_wideview = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 118{\textbar}awk '\{\{print \$4\}\}'{\textbar}tr -d
+            '{\textless}null{\textgreater}'{\textquotedbl}.format(}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default), pty=True).stdout.decode('utf-8')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.port\_wideview = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 87{\textbar}awk '\{\{print
+            \$4\}\}'{\textquotedbl}.format(self.local\_default),}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.end\_banklink = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}cat \{0\}/teste{\textbar}grep 70{\textbar}awk '\{\{print
+            \$6\}\}'{\textquotedbl}.format(self.local\_default),}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf-8')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.eth0 = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}/sbin/ifconfig eth0 {\textbar}grep
+            {\textquotedbl}inet end.:{\textquotedbl} {\textbar}awk '\{print \$3\}'{\textquotedbl}{\textquotedbl}{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.eth1 = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}/sbin/ifconfig eth1 {\textbar}grep
+            {\textquotedbl}inet end.:{\textquotedbl} {\textbar}awk '\{print \$3\}'{\textquotedbl}{\textquotedbl}{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.packages = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}(COLUMNS=150 dpkg -l {\textbar}grep
+                    {\textquotedbl}atm{\textquotedbl} {\textbar} {\textbackslash}}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ awk '\{print \$2 {\textquotedbl} {\textquotedbl}
+                    {\textquotedbl}versao{\textquotedbl} {\textquotedbl} {\textquotedbl}
+                    \$3\}'){\textquotedbl}{\textquotedbl}{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout.decode('utf-8', errors='ignore')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ is\_perto\_packages = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}dpkg -l {\textbar}grep 'perto'{\textquotedbl},}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ pty=True).stdout.decode(}
+
+                {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ {}'utf-8',}
+
+                {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ errors='ignore')}
+
+
+            \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ manufacturer = 'perto' if is\_perto\_packages == '{}' else 'diebold'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ get\_manufacturer\_str = {\textquotedbl}{\textquotedbl}{\textquotedbl}\$(COLUMNS=150 dpkg -l
+            {\textbar}grep {\textquotedbl}\{0\}{\textquotedbl} {\textbar} awk {\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}'\{\{print \$2 {\textquotedbl} {\textquotedbl} {\textquotedbl}versao{\textquotedbl}
+            {\textquotedbl} {\textquotedbl} \$3\}\}'){\textquotedbl}{\textquotedbl}{\textquotedbl}.format(manufacturer)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.packages\_version = run(get\_manufacturer\_str, pty=True)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information.packages\_jsfs = run({\textquotedbl}{\textquotedbl}{\textquotedbl}\$(COLUMNS=150 dpkg
+                -l {\textbar}grep {\textquotedbl}jxfs-fdi{\textquotedbl} {\textbar} {\textbackslash}}
+
+                {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ awk '\{\{print \$2 {\textquotedbl} {\textquotedbl} {\textquotedbl}versao{\textquotedbl}
+                {\textquotedbl}{\textquotedbl} \$3\}\}'){\textquotedbl}{\textquotedbl}{\textquotedbl}, pty=True).stdout.decode('utf-8',
+                errors='ignore')}
+
+
+                \bigskip
+
+
+                \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class InformationSchema(ma.Schema):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ class Meta:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ fields = (}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_on\_minute',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_on\_hour',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_off\_minute',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {}'turn\_off\_hour',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {}'number\_agency',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {}'terminal\_number',}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ {}'room\_name',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'group',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'network\_shared',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'accessibility',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'end\_wideview',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'port\_wideview',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'end\_banklink',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'eth0',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'eth1',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'packages',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'packages\_version',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'packages\_jxfs',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ )}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    information\_schema = InformationSchema()}
+
+
+    \bigskip
+
+{\color{black}
+    Os pr\'oximos passos ser\~ao os scripts de manuten\c{c}\~ao remota:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \# -*- coding: utf-8 -*-}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app.manutencao.command import Command}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import run}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from decorators import setup\_fabric, update\_reboot\_machine}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app.manutencao.information import InformationCommand}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class MaintenanceCommand(Command):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_init\_\_(self, *args, **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.bd\_limpo = {\textquotedbl}EXTRACASH.NEW{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.bd\_backup = {\textquotedbl}EXTRACASH.BKP{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.local\_bakup = {\textquotedbl}/opt/foton/db/bakup/{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ super(MaintenanceCommand, self).\_\_init\_\_(*args, **kwargs)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def reboot\_machine(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run('reboot')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def recovery(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \_informationCommand = InformationCommand(self.hosts)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \_information = \_informationCommand.exec\_command()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ status = True}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = \{}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'result': 'aqui deve ser retornado o resultado e o stauts',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'status': 'True se aconteceu tudo certo. False se for erro'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return status, result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @update\_reboot\_machine}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def recovery\_aplication(self):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ {}'{}'{}' Metodo para reinstala\c{c}\~ao da aplica\c{c}\~ao '{}'{}'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \_informationCommand = InformationCommand(self.hosts)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \_information = \_informationCommand.exec\_command()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.stop\_application()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.stop\_database()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.backup\_db()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.remove\_application()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.database\_clear\_and\_create(\_information)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.install\_application()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ status = True}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = \{}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'result': 'aqui deve ser retornado o resultado e o stauts',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'status': 'True se aconteceu tudo certo. False se for erro'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return status, result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def update\_machine(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run('apt-get update -y')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def purge\_garbage(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_run = {\textquotedbl}{\textquotedbl}{\textquotedbl}rm -rf /home/caixa/logrecuperacao;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ rm -rf out;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ rm -rf /home/suporte/INFO;{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_run)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @update\_reboot\_machine}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def update\_application(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if not self.is\_procomp():}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ store\_log\_str = {\textquotedbl}{\textquotedbl}{\textquotedbl}logfile=/home/suporte/logUpdate;
+    [ -f {\textquotedbl}\$logfile{\textquotedbl} ] \&\& rm -f {\textquotedbl}\$logfile{\textquotedbl};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ apt-get -y install \ siatmdiff \&{\textgreater} {\textquotedbl}\$logfile{\textquotedbl}
+    \&{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ store\_log\_str = {\textquotedbl}{\textquotedbl}{\textquotedbl}logfile=/home/suporte/logUpdate;
+    [ -f {\textquotedbl}\$logfile{\textquotedbl} ] \&\& rm -f {\textquotedbl}\$logfile{\textquotedbl};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ apt-get -y install \ diebold-procomp-jxfs diebold-procomp-xfs diebold-procomp-basic-apis
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diebold-procomp-config-set diebold-procomp-ami jxfs-fdi \&{\textgreater}
+    {\textquotedbl}\$logfile{\textquotedbl} \&{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(store\_log\_str)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def update\_drives(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# self.update\_machine()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if self.is\_procomp():}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_install\_drivers = {\textquotedbl}{\textquotedbl}{\textquotedbl}apt-get -y install
+        diebold-procomp-jxfs {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diebold-procomp-xfs diebold-procomp-basic-apis diebold-{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ procomp-config-set diebold-procomp-ami
+        jxfs-fdi{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_install\_drivers = {\textquotedbl}{\textquotedbl}{\textquotedbl}apt-get -y install
+        pertojxfs \ pertoapi{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+        \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_install\_drivers)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# run('shutdown -c')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# self.reboot\_machine()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @update\_reboot\_machine}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def reinstall\_packages(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if is\_procomp():}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ packages\_uninstall = {\textquotedbl}{\textquotedbl}{\textquotedbl}aptitude -y purge
+        diebold-procomp-jxfs {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ diebold-procomp-xfs diebold-procomp-basic-apis diebold-{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ procomp-config-set diebold-procomp-ami
+        jxfs-fdi{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ packages\_uninstall = {\textquotedbl}aptitude -y purge pertojxfs pertoapi{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(packages\_uninstall)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.update\_drives()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def update\_scatm(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.update\_machine()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @update\_reboot\_machine}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def recovery\_database(self):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_recovery = {\textquotedbl}{\textquotedbl}{\textquotedbl}su caixa -c
+        /opt/recuperaBanco/{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ recuperaBanco.sh{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_chmod = 'chmod 644 \ /opt/foton/db/EXTRACASH.GDB'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_chown = 'chown caixa:caixa \ /opt/foton/db/EXTRACASH.GDB'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.stop\_database()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_recovery)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_chmod)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_chown)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.start\_database()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def verifica\_log(self, search=None):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ log\_file = '/opt/foton/log/ExtraCash.log'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if search:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_command = 'tail -n 40 \{0\} {\textbar}grep -i \{1\}'.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ log\_file,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ search}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_command = 'tail -n 40 \{\}'.format(log\_file)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = run(str\_command).stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.purge\_garbage()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def date\_format(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_date\_format = {\textquotedbl}{\textquotedbl}{\textquotedbl}ls -l -q /vmlinuz -{}-sort=time
+    {\textbar}grep -v \^{}d {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textbar}awk '\{print
+        \$6\}'{\textbar}uniq{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_date\_format)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def test\_create(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_verify\_error = {\textquotedbl}{\textquotedbl}{\textquotedbl}tail -n 990
+        /opt/foton/log/ExtraCash.log {\textbar}{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ grep -F '[main] mux.HttpService \ \ (AbstractHttpService.{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ java:420) - Mensagem Recebida: []'{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = run(str\_verify\_error).stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return True if result == '{}' else False}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_repository\_dfc(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = self.\_create\_execute\_remove\_sql({\textquotedbl}select pmtval from pmt
+            where{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pmtcod = '101';{\textquotedbl})}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if {\textquotedbl}repositorio.multicanal.extranet.caixa{\textquotedbl} in result:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ model\_procomp = run('cat /root/modelo\_procomp').stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ if model\_procomp in ('4', '6'):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ APT\_ATM\_LOG = {\textquotedbl}/var/log/apt\_atm.log{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ run({\textquotedbl}{\textquotedbl}{\textquotedbl}echo {\textquotedbl}'date
+            +\%d/\%m[\%H:\%M:\%S]' Alternado o {\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ repositorio da DFC PROCOMP{\textquotedbl} {\textgreater}{\textgreater}
+            \{\}{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(APT\_ATM\_LOG))}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ run({\textquotedbl}{\textquotedbl}{\textquotedbl}echo
+            {\textquotedbl}{\textasciigrave}date +\%d/\%m[\%H:\%M:\%S]{\textasciigrave} Modelo PROCOMP TCH{\textquotedbl}
+            {\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textgreater}{\textgreater}
+            \{\}{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(APT\_ATM\_LOG))}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ str\_change\_group = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo
+    {\textquotedbl}SELECT PMTVAL from PMT where pmtcod{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ = '99';{\textquotedbl} {\textgreater} \$ARQ\_SQL;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GRUPO={\textasciigrave}/opt/firebird/bin/isql
+        localhost/3050:/opt/foton/db/EX{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ TRACASH.GDB -u sysdba -p caixa -s 3 -noautocommit -i
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \$ARQ\_SQL {\textbar} tail -n2 {\textbar} se \ \ \ d -n
+        1p{\textasciigrave};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ GRUPO={\textasciigrave}echo \$GRUPO {\textbar} tr -s {\textquotedbl}
+    {\textquotedbl}{\textasciigrave};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}Grupo anterior: \$GRUPO{\textquotedbl}
+    {\textgreater}/home/suporte/grupo\_anterior{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .txt{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ run(str\_change\_group)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ str\_update\_db = {\textquotedbl}UPDATE PMT SET PMTVAL = '\$NOVO\_GRUPO' WHERE
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ PMTCOD = '99'; COMMIT;{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\_create\_execute\_remove\_sql(str\_update\_db)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ str\_add\_source\_list = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo
+    {\textquotedbl}deb http://repositorio.i{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ multicanal.extranet.caixa/ atm/extracash/dfc/{\textquotedbl}
+    {\textgreater} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ /etc/apt/sources.list{\textquotedbl}
+    {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ str\_update\_clock\_end = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo
+    {\textquotedbl}{\textasciigrave}date +\%d/\%m[\%H:\%M:\%S]{\textasciigrave} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Respositorio alterado para dfc{\textquotedbl}
+    {\textgreater}{\textgreater} \$\{APT\_ATM\_LOG\} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ 2{\textgreater}\&{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(APT\_ATM\_LOG)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ run(str\_add\_source\_list)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ run(str\_update\_clock\_end)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def test\_network(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ telnet = run({\textquotedbl}dpkg -l {\textbar}grep telnet {\textbar}awk '\{print
+            \$2\}'{\textquotedbl}).stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ ip = run({\textquotedbl}{\textquotedbl}{\textquotedbl}cat /etc/network/interfaces {\textbar}grep address
+            {\textbar}tr -d {\textquotedbl}address{\textquotedbl}{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textbar}tr -d
+            '{\textbackslash}{\textbackslash}t'{\textquotedbl}{\textquotedbl}{\textquotedbl}).stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# if telnet == 'telnet':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# else:}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def stop\_database(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_turn\_off\_db = {\textquotedbl}{\textquotedbl}{\textquotedbl}pkill fbguard; {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ pkill fbserver; {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_turn\_off\_db)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def start\_database(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_turn\_on\_db = {\textquotedbl}/etc/rc2.d/S70Firebird{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_turn\_on\_db)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def stop\_application(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_kill\_app = {\textquotedbl}pidof -x SobeAplicacao.sh roda.sh java {\textbar} xargs kill
+        -9{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_kill\_app)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_kill\_app)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def backup\_db(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}mv \{0\}\{1\} \{2\}\{3\}{\textquotedbl}.format(self.dir\_db, self.nome\_db,
+                self.local\_bakup, self.bd\_backup))}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}mv \{0\} \{1\}{\textquotedbl}.format(self.bd\_limpo, self.nome\_db))}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def remove\_application(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}dpkg -P siatm{\textquotedbl})}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}dpkg -P siatmdiff{\textquotedbl})}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def database\_clear\_and\_create(self,\_information):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_query\_recovery = {\textquotedbl}{\textquotedbl}{\textquotedbl}UPDATE PMT SET PMTVAL =
+        '\{0.terminal\_number\}' WHERE PMTCOD = '65';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '\{0.number\_agency\}' WHERE PMTCOD = '66';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '\{0.foton\_number\}' WHERE PMTCOD = '67';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '\{0.room\_name\}' WHERE PMTCOD = '77';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '/usr/local/y28kl/' WHERE PMTCOD = '84';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '/opt/foton/multicanal/trustedcert-keystore.jks' WHERE PMTCOD =
+        '89';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '\{0.group\}' WHERE PMTCOD = '99';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '\{0.network\_shared\}' WHERE PMTCOD = '102';{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ UPDATE PMT SET PMTVAL = '\{0.accessibility\}' WHERE PMTCOD =
+        '118';{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(\_information)}
+
+
+        \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_execute\_remove\_sql(str\_query\_recovery)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def install\_application(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}apt-get install siatm{\textquotedbl})}
+
+
+    \bigskip
+
+{\color{black}
+    A seguir os scripts de altera\c{c}\~ao de dados:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app.manutencao.command import Command}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from decorators import setup\_fabric, validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import run}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class ChangeDataCommand(Command):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_init\_\_(self, *args, **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.check\_ip = '/opt/manutencao/checkIP'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ super(ChangeDataCommand, self).\_\_init\_\_(*args, **kwargs)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_hour\_format(self, turn\_on, turn\_off, finde):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ new\_hour = \{}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'final': turn\_off[0],}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'initial': turn\_on[0]}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return new\_hour, finde[0]}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_data(self, *args, **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ options = kwargs['options']}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ hour\_formated, finde = self.\_\_hour\_format(options['options[turn\_on]'], options[}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}'options[turn\_off]'],
+            options['options[finde]'])}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ print options}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = \{\}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result['terminal\_number'] = self.change\_terminal\_number(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ new\_terminal\_number=options['options[terminalnumber]'])}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result['room\_name'] = self.change\_room\_name(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ new\_room\_name=options['options[room\_name]'])}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result['acessibility'] = self.change\_accessibility(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ options['options[acessibility]'])}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result['network\_shared'] = self.change\_network\_shared(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ options['options[network\_shared]'])}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result['repository'] = self.change\_repository(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ repo=options['options[repositorio]'])}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result['hour'] = self.change\_hour(hour\_formated, finde)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return True, result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_terminal\_number(self, new\_terminal\_number):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ new\_terminal\_number = int(new\_terminal\_number[0])}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ new\_terminal\_pv = new\_terminal\_number / 1000}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = {\textquotedbl}{\textquotedbl}{\textquotedbl}UPDATE PMT SET PMTVAL = '\{0\}' WHERE
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ PMTCOD = '65'; UPDATE PMT SET PMTVAL = '\{1\}' {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ WHERE PMTCOD = '66';{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ new\_terminal\_number,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ new\_terminal\_pv)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_execute\_remove\_sql(sql)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return True}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_room\_name(self, new\_room\_name):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ print 'passou aqui', new\_room\_name, 'vai ser aqui'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = {\textquotedbl}{\textquotedbl}{\textquotedbl}UPDATE PMT SET PMTVAL = '\{\}' WHERE PMTCOD =
+        '77';{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+                {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ new\_room\_name[0])}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_execute\_remove\_sql(sql)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return True}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_network\_shared(self, new\_network):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ new\_network = new\_network[0]}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = {\textquotedbl}{\textquotedbl}{\textquotedbl}UPDATE PMT SET PMTVAL = '\{\}' WHERE PMTCOD =
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}'102';{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(new\_network)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_execute\_remove\_sql(sql)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_accessibility(self, new\_accessibility):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ new\_accessibility = new\_accessibility[0]}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = {\textquotedbl}{\textquotedbl}{\textquotedbl}UPDATE PMT SET PMTVAL = '\{\}' WHERE PMTCOD =
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}'118';{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ new\_accessibility)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_execute\_remove\_sql(sql)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_hour(self, new\_hour, finde):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ MAX\_HOUR\_WORK = 23}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if(new\_hour['final'] is MAX\_HOUR\_WORK):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ update\_cron = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo {\textquotedbl}59 \{0\} * *
+        \{1\} sudo {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ /home/caixa/desliga\_monitor.sh{\textquotedbl} {\textgreater}{\textgreater}
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{2\}/ARQ\_TEMP\_CRONTAB; {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}0 0 * * \{1\} sudo
+        /home/caixa/liga\_monitor.sh{\textquotedbl} {\textgreater}{\textgreater} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{2\}/ARQ\_TEMP\_CRONTAB{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_hour['final'],}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ finde,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ update\_cron = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo {\textquotedbl}0 \{1\} * *
+        \{2\} sudo {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ /home/caixa/desliga\_monitor.sh{\textquotedbl} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textgreater}{\textgreater} \{3\}/ARQ\_TEMP\_CRONTAB; {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}0 \{0\} * * \{2\} sudo
+        /home/caixa/liga\_monitor.sh{\textquotedbl} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textgreater}{\textgreater}
+    \{3\}/ARQ\_TEMP\_CRONTAB{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_hour['initial'],}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ new\_hour['final'],}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ finde,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ )}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ execute\_cron\_str = {\textquotedbl}{\textquotedbl}{\textquotedbl} cp -f \{0\}/ARQ\_TEMP\_CRONTAB
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ /var/spool/cron/crontabs/caixa; {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ chown caixa.crontab /var/spool/cron/crontabs/caixa; {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ chmod 600 /var/spool/cron/crontabs/caixa; {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ rm -rf \{0\}/ARQ\_TEMP\_CRONTAB; {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ invoke-rc.d cron restart;
+    {\textquotedbl}{\textquotedbl}{\textquotedbl}.format(self.local\_default)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(update\_cron)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(execute\_cron\_str)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_repository(self, repo):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ print repo}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ repo = repo[0]}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ print repo}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if repo == 'Piloto-0':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ type\_repo = 'plt00'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ elif repo == 'Piloto-1':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ type\_repo = 'plt01'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ elif repo == 'Piloto-2':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ type\_repo = 'plt02'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ elif repo == 'Producao':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ type\_repo = 'plt04'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ elif repo == 'DFC':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ type\_repo = 'dfc'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ elif repo == 'PAE':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ type\_repo = 'pae'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_repo\_command = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo {\textquotedbl}deb
+        http://repositorio.multicanal.extranet{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .caixa/ atm/extracash/\{0\}/{\textquotedbl}
+    \ {\textgreater}/etc/apt/sources.list{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ type\_repo}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_repo\_command)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_sh\_add\_repo = {\textquotedbl}sh \{\}/inclui\_repositorio\_ocs.sh{\textquotedbl}.format(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_sh\_add\_repo)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql\_update\_repo = {\textquotedbl}{\textquotedbl}{\textquotedbl}UPDATE PMT SET PMTVAL = '\{0\}' WHERE
+        PMTCOD = {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}'99';{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(type\_repo, self.arq\_sql)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.\_create\_execute\_remove\_sql(sql\_update\_repo)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_get\_network\_info(self, ip):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ bc\_tmp = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}\$(echo \{0\}{\textbar}cut -d . -f 1).\$(echo
+                    \{0\}{\textbar}cut -d . -f 2).\$(echo \{0\}{\textbackslash}}
+
+                        {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                        \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textbar}cut -d . -f
+                        3).255{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(ip)}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ gw\_tmp = run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}\$(echo \{0\}{\textbar}cut -d . -f 1).\$(echo
+                    \{0\}{\textbar}cut -d . -f 2).\$(echo \{0\}{\textbackslash}}
+
+                        {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                        \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textbar}cut -d . -f
+                        3).{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(ip)}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ ).stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return \{'bc\_tmp': bc\_tmp, 'gw\_tmp': gw\_tmp\}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_set\_new\_network(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ net\_work\_infos,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ network\_mask,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ gateway,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ iface,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ ip):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}echo -e {\textquotedbl}\# The loopback network
+            interface{\textbackslash}nauto lo{\textbackslash}niface lo {\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ inet loopback{\textquotedbl}
+            {\textgreater}/etc/network/interfaces{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ )}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}{\textquotedbl}{\textquotedbl}echo -e {\textquotedbl}{\textbackslash}n\# The primary
+            network interface{\textquotedbl} {\textgreater}{\textgreater}/etc/network/{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ interfaces{\textquotedbl}{\textquotedbl}{\textquotedbl})}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}{\textquotedbl}{\textquotedbl}echo -e {\textquotedbl}auto \{0\}{\textquotedbl}
+            {\textgreater}{\textgreater}/etc/network/interfaces{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(iface))}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}{\textquotedbl}{\textquotedbl} echo -e {\textquotedbl}iface \{0\} inet
+            static{\textquotedbl} {\textgreater}{\textgreater}/etc/network/{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ interfaces{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(iface))}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run({\textquotedbl}{\textquotedbl}{\textquotedbl}echo -e {\textquotedbl}{\textbackslash}taddress
+            \{0\}{\textbackslash}n{\textbackslash}tnetmask \{1\}{\textquotedbl}
+            {\textgreater}{\textgreater}/etc/network/{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ interface{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ ip, network\_mask))}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if gateway is not {\textquotedbl}{\textquotedbl}:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ run({\textquotedbl}{\textquotedbl}{\textquotedbl}echo -e {\textquotedbl}{\textbackslash}tgateway
+            \$\{GATEWAY\}{\textquotedbl} {\textgreater}{\textgreater}/etc/network/{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ interfaces{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(gateway))}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_network(self, ip, network\_mask, gateway):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ iface = 'eth0'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ IPTMP = {\textquotedbl}{\textquotedbl}{\textquotedbl}egrep
+    {\textquotedbl}((1[0-9]{\textbar}[1-9]?)[0-9]{\textbar}2([0-4][0-9]{\textbar}5[0-5])){\textbackslash}.((1[0-9{\textbackslash}}
+
+                {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ]{\textbar}[1-9]?)[0-9]{\textbar}2([0-4][0-9]{\textbar}5[0-5])){\textbackslash}.((1[0-9]{\textbar}[1-9]?)[0-9]{\textbar}2({\textbackslash}}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ [0-4][0-9]{\textbar}5[0-5])){\textbackslash}.((1[0-9]{\textbar}[1-9]?)[0-9]{\textbar}2([0-4][0-9]{\textbar}5[0-4]{\textbackslash}}
+
+                        {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                        \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ ))\${\textquotedbl} \ \{0\}/\{1\}){\textquotedbl}{\textquotedbl}{\textquotedbl}.format(}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ self.local\_default,}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ \ \ \ \ self.check\_ip}
+
+                    {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                    \ \ \ \ \ \ \ \ )}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ ip\_is\_valid = run(IPTMP).stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if ip\_is\_valid is not {\textquotedbl}{\textquotedbl}:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ net\_work\_infos = self.\_get\_network\_info(ip)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ self.\_set\_new\_network(net\_work\_infos, network\_mask, gateway, iface)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ return \{'status': True\}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ return \{'status': False\}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_execute\_turn\_on\_monitor(self, version):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_command = '{}'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if version == 'Versao\_1':}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_command = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo
+    {\textquotedbl}\#!/bin/bash{\textquotedbl} {\textgreater} /home/caixa/liga\_monitor.sh;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}\#xset -display :0.0 +dpms dpms force on{\textquotedbl}
+    {\textgreater}{\textgreater} /home/caixa/{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ liga\_monitor.sh;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}\#xset -display :0.0 s activate{\textquotedbl} {\textgreater}{\textgreater}
+    /home/caixa/liga\_monitor{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .sh;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}xset -display :0.0 -dpms s reset{\textquotedbl} {\textgreater}{\textgreater}
+    /home/caixa/{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ liga\_monitor.sh {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_command = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo
+    {\textquotedbl}\#!/bin/bash{\textquotedbl} {\textgreater} /home/caixa/liga\_monitor.sh;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}\#xset -display :0.0 +dpms dpms force on{\textquotedbl}
+    {\textgreater}{\textgreater} /home/caixa{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ /liga\_monitor.sh;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}xset -display :0.0 s activate{\textquotedbl} {\textgreater}{\textgreater}
+    /home/caixa/liga\_monitor{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ .sh;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}xset -display :0.0 -dpms{\textquotedbl} {\textgreater}{\textgreater}
+    /home/caixa/liga\_monitor.sh;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_command)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_turn\_on\_screen(self, version):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ is\_procomp = run({\textquotedbl}{\textquotedbl}{\textquotedbl}[ -f /root/modelo\_procomp ] \&\& echo
+            {\textquotedbl}yes{\textquotedbl} {\textbar}{\textbar} {\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ echo {\textquotedbl}no{\textquotedbl}
+            {\textquotedbl}{\textquotedbl}{\textquotedbl}).stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if is\_procomp == {\textquotedbl}yes{\textquotedbl}:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ model\_procomp = run('cat /root/modelo\_procomp')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ if model\_procomp in ('5', '8'):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.\_execute\_turn\_on\_monitor(version)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @validate\_input}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def change\_terminal\_name(self, name):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_command = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo {\textquotedbl}xset -display :0.0
+        -dpms{\textquotedbl} {\textgreater}{\textgreater} /home/caixa/{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ liga\_monitor.sh}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ cp \$\{ARQ\_TEMPORARIO\} /etc/hostname;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ sed -i
+    {\textquotedbl}/{\textbackslash}{\textbackslash}b[A-Z][A-Z][0-9].*{\textbackslash}{\textbackslash}b/s/{\textbackslash}{\textbackslash}b[A-Z][A-Z][0-9].*{\textbackslash}{\textbackslash}b/{\textbackslash}{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \$\{nome\_equipamento\}/{\textquotedbl}
+    /etc/hosts;{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\color{black}
+    A seguir est\~ao as models utilizadas para o ponto de manuten\c{c}\~ao:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \# encoding: utf-8}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app import db}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class HistoricoManutencao(db.Model):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}Cabecalho das manutencoes
+        geradas{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ id = db.Column(db.Integer, primary\_key=True)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ tipo = db.Column(db.String(80))}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ data\_execucao = db.Column(db.DateTime)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ data\_fim = db.Column(db.DateTime)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ comando = db.Column(db.String(400))}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ usuario = db.Column(db.String(120))}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ link\_log = db.Column(db.String(250))}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_init\_\_(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ tipo,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ data\_execucao,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ data\_fim,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ comando,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ usuario,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ link\_log):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.data\_execucao = data\_execucao}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.data\_fim = data\_fim}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.tipo = tipo}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.comando = comando}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.usuario = usuario}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.link\_log = link\_log}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_repr\_\_(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return '{\textless}Manutencao \%r - \%r Executada por \%r{\textgreater}' \% (}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self.tipo, self.data\_fim, self.usuario)}
+
+
+    \bigskip
+
+{\color{black}
+    Por fim, est\~ao os scripts de salvamento de logs:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import settings}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from my\_app.manutencao.command import Command}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from decorators import setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from fabric.api import run, get}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    from StringIO import StringIO}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    import shutil}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    import os}
+
+
+    \bigskip
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    class SaveLogCommand(Command):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_\_init\_\_(}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ self,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ type\_log=False,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ log\_name=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ directory=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ files=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ model=None,}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                \ \ \ \ \ \ \ \ \ \ \ \ tmp\_dir='{}',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ ami='{}',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ tpm='{}',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ *args,}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ **kwargs):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.directory = directory}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.files = files}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.model = model}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.tmp\_dir = tmp\_dir}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.ami = ami}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.tpm = tpm}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.type\_log = type\_log}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.log\_name = log\_name}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.packages = {\textquotedbl}/var/log/apt\_atm.log{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.report = {\textquotedbl}/var/log/relatorio\_pacotes.log{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.arq\_information = {\textquotedbl}/home/suporte/informacoes.txt{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ super(SaveLogCommand, self).\_\_init\_\_(*args, **kwargs)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def information\_eqpto(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ {\textquotedbl}TODO{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run('rm -f /home/suporte/informacoes.txt')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ lines = run({\textquotedbl}/opt/firebird/bin/gfix -v -f -user sysdba -password caixa{\textbackslash}}
+
+            {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+            \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ /opt/foton/db/EXTRACASH.GDB 2{\textgreater}\&1 {\textbar} wc -l{\textquotedbl}).stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ gds = run('cat /opt/foton/log/ExtraCash.log {\textbar}grep GDS {\textbar}wc -l')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# if('0' in (lines, gds)):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run('sh Informacao\_maquina.sh')}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ sql = {\textquotedbl}{\textquotedbl}{\textquotedbl}echo {\textquotedbl}select pmtval from pmt where
+        pmtcod = '65';{\textquotedbl} {\textgreater}{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ /home/suporte/consulta.sql{\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(sql)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ query = {\textquotedbl}{\textquotedbl}{\textquotedbl}/opt/firebird/bin/isql {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ localhost/3050:/opt/foton/db/EXTRACASH.GDB {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}-u sysdba -p caixa -s 1 -noautocommit -i {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ /home/suporte/consulta.sql {\textbar} tail -2 {\textbar}head -1 {\textbar} cut -f1 -d{\textquotedbl}
+    {\textquotedbl} {\textquotedbl}{\textquotedbl}{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.terminal\_number = run(query).stdout}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def compact\_log(self, log\_name):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if not self.type\_log:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_command = {\textquotedbl}{\textquotedbl}{\textquotedbl}cd \{0\};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ tar -cvzf /home/suporte/\{1\}\_{\textasciigrave}date +\%d\%m\%y{\textasciigrave}.tar.gz
+    {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{2\} \{3\} \{4\} \{5\} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{6\} \{7\}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}.format(self.directory, log\_name, self.directory,
+            self.tpm, self.ami, self.arq\_information, self.packages, self.report)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ str\_command = {\textquotedbl}{\textquotedbl}{\textquotedbl}for i in {\textasciigrave}cat
+        /home/suporte/data{\textasciigrave}; do ls -l -N {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{0\}{\textbar}awk '\{\{print \$6{\textquotedbl}
+    {\textquotedbl}\$8\}\}'{\textbar}grep \$i {\textbar}cut -d {\textquotedbl} {\textquotedbl} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}-f2; done {\textgreater} /home/suporte/arquivo.logs;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ cd \{0\};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ tar -cvzf /home/suporte/\{1\}\_{\textasciigrave}date
+        +\%d\%m\%y{\textasciigrave}.tar.gz{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {}-{}-files-from=/home/suporte/arquivo.logs \{2\} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{3\} \{4\} \{5\} \{6\};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ rm /home/suporte/arquivo.logs;}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}.format(self.directory, log\_name, self.tmp\_dir,
+            self.ami, self.arq\_information, self.packages, self.report)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_command)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def directory\_log(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ pass}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def clear\_all\_files(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ files = [}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'/home/suporte/data',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'/home/suporte/DATA',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'/home/suporte/arquivo.logs',}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ {}'/home/suporte/*.tar.gz',}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ \ \ \ \ {}'/home/suporte/consulta.sql'}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ ]}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ self.\_remove\_file(files)}
+
+
+                                              \bigskip
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ @setup\_fabric}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ def get\_data\_log(self):}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ {}'TODO'}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ get\_data = {\textquotedbl}ls -l -q \{0\}\{1\} -{}-sort=time {\textbar}grep -v \^{}d {\textbackslash}}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ {\textbar}awk '\{\{print \$6\}\}'{\textbar}uniq{\textquotedbl}.format(self.directory,
+                                              self.files)}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ data = run(get\_data).stdout}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ data = run(}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ \ \ \ \ {\textquotedbl}{\textquotedbl}{\textquotedbl}echo \{\}{\textbar}tr {\textquotedbl}
+                                              {\textquotedbl} {\textquotedbl}{\textbackslash}{\textbackslash}12{\textquotedbl} {\textgreater}
+                                              /home/suporte/DATA{\textquotedbl}{\textquotedbl}{\textquotedbl}.format(data)).stdout}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ return data}
+
+
+                                              \bigskip
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ def log\_simma(self):}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ self.information\_eqpto()}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ self.log\_name = 'extracash\_\{\}'.format(self.terminal\_number)}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ self.directory = '/opt/foton/log/'}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ self.files = '*'}
+
+
+                                              \bigskip
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ if self.type\_log:}
+
+                                              {\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+                                              \ \ \ \ \ \ \ \ \ \ \ \ self.create\_data\_log()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.compact\_log(self.log\_name)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = self.save\_log()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.clear\_all\_files()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def save\_log(self):}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ name\_file = {\textquotedbl}\{0\}\_\%d\%m\%y.tar.gz{\textquotedbl}.format(self.log\_name)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ import datetime}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ today = datetime.datetime.today()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ name\_file = today.strftime(name\_file)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ path\_file = {\textquotedbl}/home/suporte/\{\}{\textquotedbl}.format(name\_file)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ log\_file = self.\_get\_file(path\_file)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ root\_path\_log = './my\_app/static/logs/'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if not os.path.exists(root\_path\_log):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ os.makedirs(root\_path\_log)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ with open(root\_path\_log + name\_file, 'w') as fd:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ log\_file.seek(0)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ shutil.copyfileobj(log\_file, fd)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return './static/logs/' + name\_file}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def compact\_to\_db(self, name\_log):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ str\_command = {\textquotedbl}{\textquotedbl}{\textquotedbl}cd \{0\};}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ tar -cvzf /home/suporte/\{1\}\_{\textasciigrave}date +\%d\%m\%y{\textasciigrave}.tar.gz
+        \{0\}{\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \{2\} \{3\} \{4\} \{2\} \{5\} {\textbackslash}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \{6\} {\textquotedbl}{\textquotedbl}{\textquotedbl}.format(self.directory, name\_log,
+            self.arq\_information, self.tmp\_dir, self.ami, self.packages, self.report)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ run(str\_command)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def logs\_db(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information\_eqpto()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.log\_name = 'firebird'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.directory = '/opt/foton/db/'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.files = '*'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.compact\_to\_db(log\_name)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.save\_log()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.clear\_all\_files()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def \_get\_file(self, remote\_path):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ fb = StringIO()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ get(remote\_path, fb)}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \# This will return a string holding the file content}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return fb}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def log\_perto(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information\_eqpto()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.log\_name = 'perto\_\{\}'.format(self.terminal\_number)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.directory = '/opt/perto/log/'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.files = '*'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if self.type\_log:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ self.get\_data\_log()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.compact\_to\_db(self.log\_name)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = self.save\_log()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.clear\_all\_files()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def log\_eng(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ is\_procomp = self.is\_procomp()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if is\_procomp:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ result = self.log\_procomp()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ result = self.log\_perto()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ @setup\_fabric}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ def log\_procomp(self):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.information\_eqpto()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.log\_name = 'procomp\_\{\}'.format(self.terminal\_number)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.directory = '/opt/DieboldProcomp/JXFS/DieboldProcompJXFS/Logs/'}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.files = '*'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ model\_procomp = run('cat /root/modelo\_procomp').stdout}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if model\_procomp in ('5'):}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ self.ami = '/opt/DieboldProcomp/AMI/AMITrace*'}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ has\_file = self.have\_file('/tmp/prolog.log')}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if has\_file:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ self.tmp\_dir = {\textquotedbl}/tmp/prolog.log{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ self.tmp\_dir = {\textquotedbl}/tmp/prolog/prolog*{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ has\_file\_prolog = self.have\_file({\textquotedbl}/tmp/prolog/{\textquotedbl})}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if not has\_file\_prolog:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ has\_file\_prolog = self.have\_file({\textquotedbl}/var/prolog.log{\textquotedbl})}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ if has\_file\_prolog:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.tmp\_dir = {\textquotedbl}/var/prolog.log{\textquotedbl}}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ else:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ self.tmp\_dir = {\textquotedbl}/var/prolog/prolog*{\textquotedbl}}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ if self.type\_log:}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ \ \ \ \ self.get\_data\_log()}
+
+
+    \bigskip
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.compact\_to\_db(self.log\_name)}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ result = self.save\_log()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ self.clear\_all\_files()}
+
+{\ttfamily\color[rgb]{0.10980392,0.10980392,0.10980392}
+    \ \ \ \ \ \ \ \ return result}
+
+
+    \bigskip
+
+
+    \bigskip
